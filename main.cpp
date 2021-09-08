@@ -9,6 +9,8 @@ int  BALL_SPEED = 16;
 int SPEED = 9;
 #define SIZE 16
 #define PI 3.14159265358979323846
+void input();
+int store;
 
 SDL_Renderer* renderer;
 SDL_Window* window;
@@ -16,14 +18,19 @@ TTF_Font* font;
 SDL_Color color;
 bool running;
 int frameCount, timerFPS, lastFrame, fps;
-
+float multiplyer =1;
 SDL_Rect l_paddle, r_paddle, ball, score_board;
 float velX, velY;
 std::string score;
+std::string gamepoint;
 int l_s, r_s;
+float level=0;
 bool turn;
 
 void serve() {
+    velX=velX*(level/5);
+    velY=velY*(level/5);
+    SPEED = 9;
  l_paddle.y=r_paddle.y=(HEIGHT/2)-(l_paddle.h/2);
  if(turn) {
   ball.x=l_paddle.x+(l_paddle.w*4);
@@ -52,6 +59,29 @@ void write(std::string text, int x, int y) {
  SDL_RenderCopy(renderer, texture, NULL, &score_board);
  SDL_DestroyTexture(texture);
 }
+void end()
+{
+    gamepoint="You Win, Press Enter to exit";
+     
+     int frameStart = SDL_GetTicks();
+     int frameTime=SDL_GetTicks() - frameStart;
+    
+    SDL_RenderPresent(renderer);
+     while(running) 
+    {
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 255);
+        frameStart = SDL_GetTicks();
+        SDL_RenderClear(renderer);
+        write(gamepoint, WIDTH/2+FONT_SIZE*2, FONT_SIZE*2);
+        SDL_RenderPresent(renderer);
+        frameTime = SDL_GetTicks() - frameStart;
+
+if (1000 > frameTime) {
+    SDL_Delay(1000/60 - frameTime);
+}
+input();
+ }
+}
 
 void update() {
  if(SDL_HasIntersection(&ball, &r_paddle)) {
@@ -73,9 +103,22 @@ void update() {
  if(ball.x<=0) {r_s++;serve();}
  if(ball.x+SIZE>=WIDTH) {l_s++;serve();}
  if(ball.y<=0 || ball.y+SIZE>=HEIGHT) velY=-velY;
- ball.x+=velX;
- ball.y+=velY;
- score=std::to_string(l_s) + "   " + std::to_string(r_s);
+ ball.x+=velX*(multiplyer);
+ ball.y+=velY*(multiplyer);
+ level = l_s-r_s+1;
+ if(level<=0)
+ {
+     level =1;
+     l_s=r_s=0;
+ }
+  if(level>=10)
+ {
+     level =10;
+     
+ }
+ multiplyer = 1 + level/15;
+ store = level;
+ score="Level " + std::to_string(store-1);
  if(l_paddle.y<0)l_paddle.y=0;
  if(l_paddle.y+l_paddle.h>HEIGHT)l_paddle.y=HEIGHT-l_paddle.h;
  if(r_paddle.y<0)r_paddle.y=0;
@@ -91,7 +134,10 @@ void input() {
  const Uint8 *keystates = SDL_GetKeyboardState(NULL);
  while(SDL_PollEvent(&e)) if(e.type==SDL_QUIT) running=false;
  if(keystates[SDL_SCANCODE_ESCAPE]) running=false;
+ if(keystates[SDL_SCANCODE_RETURN]) running=false;
  l_paddle.y=y-(l_paddle.h/2);
+ if(keystates[SDL_SCANCODE_UP]) {l_s++;SDL_Delay(100);};
+ 
 }
 
 void render() {
@@ -109,6 +155,15 @@ void render() {
  SDL_RenderFillRect(renderer, &r_paddle);
  SDL_RenderFillRect(renderer, &ball);
  write(score, WIDTH/2+FONT_SIZE, FONT_SIZE*2);
+ if(level>=10)
+ {
+     gamepoint="game point " + std::to_string(l_s-r_s-9);
+     write(gamepoint, WIDTH+FONT_SIZE-32, FONT_SIZE*2);
+ }
+ if(l_s-r_s>=12)
+ {
+     end();
+ }
 
  SDL_RenderPresent(renderer);
 }
