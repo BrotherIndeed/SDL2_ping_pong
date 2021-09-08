@@ -2,7 +2,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
-#define WIDTH 720
+#define WIDTH 1000
 #define HEIGHT 720
 #define FONT_SIZE 32
 int  BALL_SPEED = 16;
@@ -167,7 +167,12 @@ void render() {
 
  SDL_RenderPresent(renderer);
 }
-
+void changecolor()
+{int x= level;
+    color.r=(x*100)%255;
+    color.g=(x*50)%255;
+    color.b=(x*75)%255;
+}
 int main(int argc, char *argv[]) {
 
     
@@ -205,7 +210,7 @@ int main(int argc, char *argv[]) {
    frameCount=0;
   }
 
-  
+  changecolor();
   update();
   input();
   render();
