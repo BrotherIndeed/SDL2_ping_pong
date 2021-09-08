@@ -141,9 +141,6 @@ int main(int argc, char *argv[]) {
             frameCount=0;
         }
 
-        color.r=(color.r+1)%255;
-        color.g=(color.g+1)%255;
-        color.b=(color.b+1)%255;
         update();
         input();
         render();
