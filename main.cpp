@@ -5,8 +5,8 @@
 #define WIDTH 720
 #define HEIGHT 720
 #define FONT_SIZE 32
-#define BALL_SPEED 16
-#define SPEED 9
+int  BALL_SPEED = 16;
+int SPEED = 9;
 #define SIZE 16
 #define PI 3.14159265358979323846
 
@@ -35,6 +35,7 @@ void serve() {
  velY=0;
  ball.y=HEIGHT/2-(SIZE/2);
  turn=!turn;
+ 
 }
 
 void write(std::string text, int x, int y) {
@@ -82,12 +83,15 @@ void update() {
 }
 
 void input() {
+
  SDL_Event e;
+ int y,x;
+ Uint32 buttons;
+ buttons = SDL_GetMouseState(&x, &y);
  const Uint8 *keystates = SDL_GetKeyboardState(NULL);
  while(SDL_PollEvent(&e)) if(e.type==SDL_QUIT) running=false;
  if(keystates[SDL_SCANCODE_ESCAPE]) running=false;
- if(keystates[SDL_SCANCODE_UP]) l_paddle.y-=SPEED;
- if(keystates[SDL_SCANCODE_DOWN]) l_paddle.y+=SPEED;
+ l_paddle.y=y-(l_paddle.h/2);
 }
 
 void render() {
@@ -110,19 +114,23 @@ void render() {
 }
 
 int main(int argc, char *argv[]) {
+
+    
+
+
  if(SDL_Init(SDL_INIT_EVERYTHING) < 0) std::cout << "Failed at SDL_Init()" << std::endl;
  if(SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, 0, &window, &renderer) < 0) std::cout << "Failed at SDL_CreateWindowAndRenderer())" << std::endl;
  TTF_Init();
  font = TTF_OpenFont("Peepo.ttf", FONT_SIZE);
  running=1;
  static int lastTime = 0;
-//need to randomize this
- color.r=80;
- color.g=160;
- color.b=240;
+
+ SDL_ShowCursor(SDL_DISABLE);
+ SDL_SetRelativeMouseMode(SDL_TRUE);
+
+ color.r=color.g=color.b=255;
  l_s=r_s=0;
- l_paddle.x=32; 
- l_paddle.h=HEIGHT/4;
+ l_paddle.x=32; l_paddle.h=HEIGHT/4;
  l_paddle.y=(HEIGHT/2)-(l_paddle.h/2);
  l_paddle.w=12;
  r_paddle=l_paddle;
@@ -131,20 +139,22 @@ int main(int argc, char *argv[]) {
 
  serve();
 
- while(running) 
-    {
-        lastFrame=SDL_GetTicks();
-        if(lastFrame>=(lastTime+1000)) 
-        {
-            lastTime=lastFrame;
-            fps=frameCount;
-            frameCount=0;
-        }
+ while(running) {
 
-        update();
-        input();
-        render();
-    }
+
+
+  lastFrame=SDL_GetTicks();
+  if(lastFrame>=(lastTime+1000)) {
+   lastTime=lastFrame;
+   fps=frameCount;
+   frameCount=0;
+  }
+
+  
+  update();
+  input();
+  render();
+ }
  TTF_CloseFont(font);
  SDL_DestroyRenderer(renderer);
  SDL_DestroyWindow(window);
